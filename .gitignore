@@ -1,0 +1,18 @@
+# Pycache directory
+__pycache__/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+.Rhistory
+
+venv/
+env/
+
+# Python packaging
+*.egg-info/
+build/
+dist/
+
+# Local experiment runs (committed baseline lives under artifacts/models/complete_version_baseline/)
+*.tar.gz
