@@ -32,7 +32,9 @@ def build_cure_aft(aft_distribution):
 
     # Weibull distribution - Gumbel formulation
     if(aft_distribution == "wb"):
-        pass
+        def S1(t, mu, sigma, p):
+            
+            
     # Log-normal distribution - Normal formulation
     elif(aft_distribution == "ln"):
         pass
