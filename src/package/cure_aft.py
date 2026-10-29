@@ -28,6 +28,7 @@ import subprocess
 
 import thetaflow as thf
 
+# mu: linear ; sigma: constant ; p: constant
 def build_cure_aft_structure0(aft_distribution, z_mu):
 
     def logit(u):
@@ -172,14 +173,14 @@ def build_cure_aft_structure0(aft_distribution, z_mu):
         H_train = -np.log( S_train )
         H_test = -np.log( S_test )
     
-        if(hasattr(y_train, "to_numpy")):
-            y_train = y_train.to_numpy()
-        if(hasattr(delta_train, "to_numpy")):
-            delta_train = delta_train.to_numpy()
-        if(hasattr(y_test, "to_numpy")):
-            y_test = y_test.to_numpy()
-        if(hasattr(delta_test, "to_numpy")):
-            delta_test = delta_test.to_numpy()
+        if(hasattr(y_train, "numpy")):
+            y_train = y_train.numpy()
+        if(hasattr(delta_train, "numpy")):
+            delta_train = delta_train.numpy()
+        if(hasattr(y_test, "numpy")):
+            y_test = y_test.numpy()
+        if(hasattr(delta_test, "numpy")):
+            delta_test = delta_test.numpy()
             
         return {
             "ts_grid": ts_grid,
@@ -187,22 +188,23 @@ def build_cure_aft_structure0(aft_distribution, z_mu):
             "y_test": y_test,
             "delta_train": delta_train,
             "delta_test": delta_test,
-            "mu_train": mu_train,
-            "mu_test": mu_test,
-            "sigma_train": sigma_train,
-            "sigma_test": sigma_test,
-            "p_train": p_train,
-            "p_test": p_test,
-            "S_ts_train": S_ts_train,
-            "S_ts_test": S_ts_test,
-            "S_train": S_train,
-            "S_test": S_test,
-            "H_train": H_train,
-            "H_test": H_test
+            "mu_train": mu_train.numpy().flatten(),
+            "mu_test": mu_test.numpy().flatten(),
+            "sigma_train": sigma_train.numpy().flatten(),
+            "sigma_test": sigma_test.numpy().flatten(),
+            "p_train": p_train.numpy().flatten(),
+            "p_test": p_test.numpy().flatten(),
+            "S_ts_train": S_ts_train.numpy(),
+            "S_ts_test": S_ts_test.numpy(),
+            "S_train": S_train.numpy().flatten(),
+            "S_test": S_test.numpy().flatten(),
+            "H_train": H_train.numpy().flatten(),
+            "H_test": H_test.numpy().flatten()
         }
 
     return aft_model_parameters, loglikelihood_loss, get_survival_cure
 
+# mu: linear ; sigma: linear ; p: linear
 def build_cure_aft_structure1(aft_distribution, z_mu, z_sigma, z_p):
 
     def logit(u):
@@ -351,14 +353,14 @@ def build_cure_aft_structure1(aft_distribution, z_mu, z_sigma, z_p):
         H_train = -np.log( S_train )
         H_test = -np.log( S_test )
     
-        if(hasattr(y_train, "to_numpy")):
-            y_train = y_train.to_numpy()
-        if(hasattr(delta_train, "to_numpy")):
-            delta_train = delta_train.to_numpy()
-        if(hasattr(y_test, "to_numpy")):
-            y_test = y_test.to_numpy()
-        if(hasattr(delta_test, "to_numpy")):
-            delta_test = delta_test.to_numpy()
+        if(hasattr(y_train, "numpy")):
+            y_train = y_train.numpy()
+        if(hasattr(delta_train, "numpy")):
+            delta_train = delta_train.numpy()
+        if(hasattr(y_test, "numpy")):
+            y_test = y_test.numpy()
+        if(hasattr(delta_test, "numpy")):
+            delta_test = delta_test.numpy()
             
         return {
             "ts_grid": ts_grid,
@@ -372,17 +374,17 @@ def build_cure_aft_structure1(aft_distribution, z_mu, z_sigma, z_p):
             "sigma_test": sigma_test,
             "p_train": p_train,
             "p_test": p_test,
-            "S_ts_train": S_ts_train,
-            "S_ts_test": S_ts_test,
-            "S_train": S_train,
-            "S_test": S_test,
-            "H_train": H_train,
-            "H_test": H_test
+            "S_ts_train": S_ts_train.numpy(),
+            "S_ts_test": S_ts_test.numpy(),
+            "S_train": S_train.flatten(),
+            "S_test": S_test.flatten(),
+            "H_train": H_train.flatten(),
+            "H_test": H_test.flatten()
         }
 
     return aft_model_parameters, loglikelihood_loss, get_survival_cure
 
-
+# mu: linear + nn ; sigma: linear ; p: linear
 def build_cure_aft_structure2(aft_distribution, z_mu, z_sigma, z_p):
 
     def logit(u):
@@ -540,14 +542,14 @@ def build_cure_aft_structure2(aft_distribution, z_mu, z_sigma, z_p):
         H_train = -np.log( S_train )
         H_test = -np.log( S_test )
     
-        if(hasattr(y_train, "to_numpy")):
-            y_train = y_train.to_numpy()
-        if(hasattr(delta_train, "to_numpy")):
-            delta_train = delta_train.to_numpy()
-        if(hasattr(y_test, "to_numpy")):
-            y_test = y_test.to_numpy()
-        if(hasattr(delta_test, "to_numpy")):
-            delta_test = delta_test.to_numpy()
+        if(hasattr(y_train, "numpy")):
+            y_train = y_train.numpy()
+        if(hasattr(delta_train, "numpy")):
+            delta_train = delta_train.numpy()
+        if(hasattr(y_test, "numpy")):
+            y_test = y_test.numpy()
+        if(hasattr(delta_test, "numpy")):
+            delta_test = delta_test.numpy()
             
         return {
             "ts_grid": ts_grid,
@@ -561,17 +563,17 @@ def build_cure_aft_structure2(aft_distribution, z_mu, z_sigma, z_p):
             "sigma_test": sigma_test,
             "p_train": p_train,
             "p_test": p_test,
-            "S_ts_train": S_ts_train,
-            "S_ts_test": S_ts_test,
-            "S_train": S_train,
-            "S_test": S_test,
-            "H_train": H_train,
-            "H_test": H_test
+            "S_ts_train": S_ts_train.numpy(),
+            "S_ts_test": S_ts_test.numpy(),
+            "S_train": S_train.flatten(),
+            "S_test": S_test.flatten(),
+            "H_train": H_train.flatten(),
+            "H_test": H_test.flatten()
         }
 
     return aft_model_parameters, loglikelihood_loss, get_survival_cure
 
-
+# mu: linear ; sigma: linear ; p: linear + nn
 def build_cure_aft_structure3(aft_distribution, z_mu, z_sigma, z_p):
 
     def logit(u):
@@ -731,14 +733,14 @@ def build_cure_aft_structure3(aft_distribution, z_mu, z_sigma, z_p):
         H_train = -np.log( S_train )
         H_test = -np.log( S_test )
     
-        if(hasattr(y_train, "to_numpy")):
-            y_train = y_train.to_numpy()
-        if(hasattr(delta_train, "to_numpy")):
-            delta_train = delta_train.to_numpy()
-        if(hasattr(y_test, "to_numpy")):
-            y_test = y_test.to_numpy()
-        if(hasattr(delta_test, "to_numpy")):
-            delta_test = delta_test.to_numpy()
+        if(hasattr(y_train, "numpy")):
+            y_train = y_train.numpy()
+        if(hasattr(delta_train, "numpy")):
+            delta_train = delta_train.numpy()
+        if(hasattr(y_test, "numpy")):
+            y_test = y_test.numpy()
+        if(hasattr(delta_test, "numpy")):
+            delta_test = delta_test.numpy()
             
         return {
             "ts_grid": ts_grid,
@@ -752,19 +754,17 @@ def build_cure_aft_structure3(aft_distribution, z_mu, z_sigma, z_p):
             "sigma_test": sigma_test,
             "p_train": p_train,
             "p_test": p_test,
-            "S_ts_train": S_ts_train,
-            "S_ts_test": S_ts_test,
-            "S_train": S_train,
-            "S_test": S_test,
-            "H_train": H_train,
-            "H_test": H_test
+            "S_ts_train": S_ts_train.numpy(),
+            "S_ts_test": S_ts_test.numpy(),
+            "S_train": S_train.flatten(),
+            "S_test": S_test.flatten(),
+            "H_train": H_train.flatten(),
+            "H_test": H_test.flatten()
         }
 
     return aft_model_parameters, loglikelihood_loss, get_survival_cure
 
-
-
-
+# mu: linear + nn ; sigma: linear ; p: linear + nn
 def build_cure_aft_structure4(aft_distribution, z_mu, z_sigma, z_p):
 
     def logit(u):
@@ -928,14 +928,14 @@ def build_cure_aft_structure4(aft_distribution, z_mu, z_sigma, z_p):
         H_train = -np.log( S_train )
         H_test = -np.log( S_test )
     
-        if(hasattr(y_train, "to_numpy")):
-            y_train = y_train.to_numpy()
-        if(hasattr(delta_train, "to_numpy")):
-            delta_train = delta_train.to_numpy()
-        if(hasattr(y_test, "to_numpy")):
-            y_test = y_test.to_numpy()
-        if(hasattr(delta_test, "to_numpy")):
-            delta_test = delta_test.to_numpy()
+        if(hasattr(y_train, "numpy")):
+            y_train = y_train.numpy()
+        if(hasattr(delta_train, "numpy")):
+            delta_train = delta_train.numpy()
+        if(hasattr(y_test, "numpy")):
+            y_test = y_test.numpy()
+        if(hasattr(delta_test, "numpy")):
+            delta_test = delta_test.numpy()
             
         return {
             "ts_grid": ts_grid,
@@ -949,18 +949,17 @@ def build_cure_aft_structure4(aft_distribution, z_mu, z_sigma, z_p):
             "sigma_test": sigma_test,
             "p_train": p_train,
             "p_test": p_test,
-            "S_ts_train": S_ts_train,
-            "S_ts_test": S_ts_test,
-            "S_train": S_train,
-            "S_test": S_test,
-            "H_train": H_train,
-            "H_test": H_test
+            "S_ts_train": S_ts_train.numpy(),
+            "S_ts_test": S_ts_test.numpy(),
+            "S_train": S_train.flatten(),
+            "S_test": S_test.flatten(),
+            "H_train": H_train.flatten(),
+            "H_test": H_test.flatten()
         }
 
     return aft_model_parameters, loglikelihood_loss, get_survival_cure
 
-
-def cure_aft_neural_network1(model, seed = None):
+def neural_network1(model, seed = None):
     initializer = initializers.GlorotNormal(seed=seed)
     
     # Penalizador para pesos muito grandes
@@ -1005,7 +1004,7 @@ def cure_aft_neural_network1(model, seed = None):
         activation = None, use_bias = True, name = "output"
     )
 
-def cure_aft_neural_network2(model, seed = None):
+def neural_network2(model, seed = None):
     initializer = initializers.GlorotNormal(seed=seed)
     
     # Penalizador para pesos muito grandes
@@ -1050,7 +1049,7 @@ def cure_aft_neural_network2(model, seed = None):
         activation = None, use_bias = True, name = "output"
     )
 
-def cure_aft_network_call(model, x_input, training=False):
+def network_call(model, x_input, training=False):
     # Passagem do embedding e achatamento
     x = model.embedding(x_input)
     x = model.flatten(x)
@@ -1069,7 +1068,7 @@ def cure_aft_network_call(model, x_input, training=False):
     x = model.dense3(x)
     return model.dense4(x)
 
-def cure_aft_network_call_nolast(model, x_input, training=False):
+def network_call_nolast(model, x_input, training=False):
     x = model.embedding(x_input)
     x = model.flatten(x)
     
@@ -1106,7 +1105,7 @@ def train_model( model_parameters, model_loss, nn_arch, nn_call, nn_call_nolast,
         
         model.train_model(epochs = epochs, x = X_train_nn, data = data_train,
                           shuffle = True,
-                          get_covariances = True,
+                          get_covariances = True, covariance_jitter = 1.0e-4, # By setting a jitter of 1.0e-4 we avoid negative variances for coefficients (if it's too small, we may still end up with numerical problems)
                           validation = True, val_prop = 0.2, force_training_validation = False,
                           optimizer_independent = independent_optimizer,
                           optimizer_nn = nn_optimizer,
@@ -1125,7 +1124,6 @@ def train_model( model_parameters, model_loss, nn_arch, nn_call, nn_call_nolast,
                           deterministic = True,
                           verbose = True, print_freq = 1)
     return model
-
 
 from scipy.stats import norm
 
