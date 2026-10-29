@@ -968,7 +968,7 @@ def neural_network1(model, seed = None):
     # Camada de Embedding Compartilhada
     # Transforma contagens (0, 1, 2, 3) em embeddings de 2 dimensões
     model.embedding = keras.layers.Embedding(
-        input_dim = 4, 
+        input_dim = 4,
         output_dim = 2, 
         name = "embedding_compartilhado"
     )
@@ -1013,8 +1013,8 @@ def neural_network2(model, seed = None):
     # Camada de Embedding Compartilhada
     # Transforma contagens (0, 1, 2, 3) em embeddings de 2 dimensões
     model.embedding = keras.layers.Embedding(
-        input_dim = 4, 
-        output_dim = 2, 
+        input_dim = 4,
+        output_dim = 2,
         name = "embedding_compartilhado"
     )
     
@@ -1083,7 +1083,7 @@ def network_call_nolast(model, x_input, training=False):
     x = model.dense3(x)
     return x
 
-def train_model( model_parameters, model_loss, nn_arch, nn_call, nn_call_nolast, X_train_nn, data_train, epochs = 15000 ):
+def train_model( model_parameters, model_loss, nn_arch, nn_call, nn_call_nolast, X_train_nn, data_train, epochs = 15000, verbose = True ):
     with tf.device("/CPU:0"):
         if(X_train_nn is not None):
             model = thf.ModelNN(model_parameters, model_loss,
@@ -1122,7 +1122,7 @@ def train_model( model_parameters, model_loss, nn_arch, nn_call, nn_call_nolast,
                           finetune_reduce_lr_factor = 0.5, finetune_reduce_lr_min_delta = 1.0e-6, finetune_reduce_lr_patience = 25,
                           finetune_reduce_lr_cooldown = 10, finetune_reduce_lr_min_lr = 1.0e-5,
                           deterministic = True,
-                          verbose = True, print_freq = 1)
+                          verbose = verbose, print_freq = 1)
     return model
 
 from scipy.stats import norm
