@@ -57,6 +57,16 @@ def calculate_ad_statistic(results_dict):
     model_ad = anderson(resid_model_test).statistic / len(results_dict["S_test"])
     return model_ad
 
+def calculate_ad_statistic_avg(results_dict, repeats = 100, seed = 42):
+    np.random.seed(seed)
+    ad_metrics = []
+    for i in range(repeats):
+        resid_model_test = utils.compute_randomized_residuals_censoring( results_dict["S_test"], results_dict["delta_test"], seed = None )
+        # Normalize the AD statistic according to the test set size
+        model_ad = anderson(resid_model_test).statistic / len(results_dict["S_test"])
+        ad_metrics.append(model_ad)
+    return np.mean(ad_metrics)
+
 def calculate_ipcw_brier_score(results_dict):
     """
         Obtains the IPCW Brier Score curve along the time grid used for the model's results.

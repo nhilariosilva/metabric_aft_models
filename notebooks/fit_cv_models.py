@@ -50,7 +50,7 @@ def load_cv_train_test(fold):
     X_train_nn = df_train.iloc[:, 10:]
     # For all parameters from the AFT model, consider the same set of features as predictors
     z_train_mu = df_train.iloc[:, 3:10]
-    # z_train_mu.insert(0, "const", 1) # Can't have an intercept in mu since the neural net component already accounts for it
+    z_train_mu.insert(0, "const", 1) # Can't have an intercept in mu since the neural net component already accounts for it
     z_train_sigma = df_train.iloc[:, 5:10]
     z_train_sigma.insert(0, "const", 1)
     z_train_p = df_train.iloc[:, 3:10]
@@ -63,7 +63,7 @@ def load_cv_train_test(fold):
     X_test_nn = df_test.iloc[:, 10:]
     # For all parameters from the AFT model, consider the same set of features as predictors
     z_test_mu = df_test.iloc[:, 3:10]
-    # z_test_mu.insert(0, "const", 1) # Can't have an intercept in mu since the neural net component already accounts for it
+    z_test_mu.insert(0, "const", 1) # Can't have an intercept in mu since the neural net component already accounts for it
     z_test_sigma = df_test.iloc[:, 5:10]
     z_test_sigma.insert(0, "const", 1)
     z_test_p = df_test.iloc[:, 3:10]

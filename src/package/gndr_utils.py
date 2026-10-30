@@ -389,7 +389,8 @@ def split_risk_groups(ts_grid,
 
     
 def compute_randomized_residuals_censoring(survival_y, delta, seed = 42):
-    np.random.seed(seed)
+    if(seed is not None):
+        np.random.seed(seed)
 
     cdf_y = 1.0 - survival_y
     u = np.zeros_like(cdf_y)
