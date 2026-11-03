@@ -1450,6 +1450,50 @@ def network_call_nolast(model, x_input, training=False):
     x = model.dense3(x)
     return x
 
+def network_call_fulldata(model, x_input, training=False):
+    # Split the input tensor into clinical variables and gene related count variables
+    x_clin = x_input[:, :7]
+    x_genes = x_input[:, 7:]
+    
+    # Apply embedding only over the gene variables and concatenate them with the clinical variables
+    x_genes_emb = model.embedding(x_genes)
+    x_genes_flat = model.flatten(x_genes_emb)
+    x = tf.concat([x_clin, x_genes_flat], axis=1)
+    
+    x = model.dense1(x)
+    x = model.bn1(x, training = training)
+    x = model.dropout1(x, training = training)
+    
+    x = model.dense2(x)
+    x = model.bn2(x, training = training)
+    x = model.dropout2(x, training = training)
+    
+    x = model.dense3(x)
+    
+    return model.dense4(x)
+
+def network_call_nolast_fulldata(model, x_input, training=False):
+    # Split the input tensor into clinical variables and gene related count variables
+    x_clin = x_input[:, :7]
+    x_genes = x_input[:, 7:]
+    
+    # Apply embedding only over the gene variables and concatenate them with the clinical variables
+    x_genes_emb = model.embedding(x_genes)
+    x_genes_flat = model.flatten(x_genes_emb)
+    x = tf.concat([x_clin, x_genes_flat], axis=1)
+    
+    x = model.dense1(x)
+    x = model.bn1(x, training = training)
+    x = model.dropout1(x, training = training)
+    
+    x = model.dense2(x)
+    x = model.bn2(x, training = training)
+    x = model.dropout2(x, training = training)
+    
+    x = model.dense3(x)
+    
+    return x
+
 def train_model( model_parameters, model_loss, nn_arch, nn_call, nn_call_nolast, X_train_nn, data_train, epochs = 15000, verbose = True ):
     with tf.device("/CPU:0"):
         if(X_train_nn is not None):
