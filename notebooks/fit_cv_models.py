@@ -39,13 +39,64 @@ from package import evaluation_metrics as evaluations
 
 import thetaflow as thf
 
-def load_cv_train_test(fold):
+def load_cv_train_test(fold, structure):
     df_train = pd.read_csv("../data/01_mlready/Cross Validation/{}_fold_train.csv".format(fold))
     df_test = pd.read_csv("../data/01_mlready/Cross Validation/{}_fold_test.csv".format(fold))
 
     # Lifetimes and censoring indicators
     y_train = df_train["time"] / 12
     delta_train = df_train["delta"]
+    y_test = df_test["time"] / 12
+    delta_test = df_test["delta"]
+
+    if(structure == 1):
+        z_train_mu = df_train.iloc[:, 3:10]
+        z_train_mu.insert(0, "const", 1) # Can't have an intercept in mu since the neural net component already accounts for it
+        z_train_sigma = df_train.iloc[:, 5:10]
+        z_train_sigma.insert(0, "const", 1)
+        z_train_p = df_train.iloc[:, 3:10]
+        z_train_p.insert(0, "const", 1)
+            
+        z_test_mu = df_test.iloc[:, 3:10]
+        z_test_mu.insert(0, "const", 1) # Can't have an intercept in mu since the neural net component already accounts for it
+        z_test_sigma = df_test.iloc[:, 5:10]
+        z_test_sigma.insert(0, "const", 1)
+        z_test_p = df_test.iloc[:, 3:10]
+        z_test_p.insert(0, "const", 1)
+        
+        return y_train, delta_train, None, z_train_mu, z_train_sigma, z_train_p, \
+        y_test, delta_test, None, z_test_mu, z_test_sigma, z_test_p
+        
+    if(structure == 5):
+        X_train_nn = df_train.iloc[:, 3:]
+        z_train_sigma = df_train.iloc[:, 5:10]
+        z_train_sigma.insert(0, "const", 1)
+        
+        X_test_nn = df_test.iloc[:, 3:]
+        z_test_sigma = df_test.iloc[:, 5:10]
+        z_test_sigma.insert(0, "const", 1)
+
+        return y_train, delta_train, X_train_nn, None, z_train_sigma, None, \
+        y_test, delta_test, X_test_nn, None, z_test_sigma, None
+        
+    if(structure == 6):
+        z_train_mu = df_train.iloc[:, 3:]
+        z_train_mu.insert(0, "const", 1)
+        z_train_sigma = df_train.iloc[:, 5:10]
+        z_train_sigma.insert(0, "const", 1)
+        z_train_p = df_train.iloc[:, 3:]
+        z_train_p.insert(0, "const", 1)
+
+        z_test_mu = df_test.iloc[:, 3:]
+        z_test_mu.insert(0, "const", 1)
+        z_test_sigma = df_test.iloc[:, 5:10]
+        z_test_sigma.insert(0, "const", 1)
+        z_test_p = df_test.iloc[:, 3:]
+        z_test_p.insert(0, "const", 1)
+        
+        return y_train, delta_train, None, z_train_mu, z_train_sigma, z_train_p, \
+        y_test, delta_test, None, z_test_mu, z_test_sigma, z_test_p
+            
     # Data for the neural network interpreter
     X_train_nn = df_train.iloc[:, 10:]
     # For all parameters from the AFT model, consider the same set of features as predictors
@@ -55,10 +106,7 @@ def load_cv_train_test(fold):
     z_train_sigma.insert(0, "const", 1)
     z_train_p = df_train.iloc[:, 3:10]
     z_train_p.insert(0, "const", 1)
-    
-    # Lifetimes and censoring indicators
-    y_test = df_test["time"] / 12
-    delta_test = df_test["delta"]
+        
     # Data for the neural network interpreter
     X_test_nn = df_test.iloc[:, 10:]
     # For all parameters from the AFT model, consider the same set of features as predictors
@@ -72,10 +120,11 @@ def load_cv_train_test(fold):
     return y_train, delta_train, X_train_nn, z_train_mu, z_train_sigma, z_train_p, \
     y_test, delta_test, X_test_nn, z_test_mu, z_test_sigma, z_test_p
 
-def fit_kfolds_structure(structure, distribution):
+def fit_kfolds_structure(structure, dist):
     for i in tqdm(range(1,5+1)):
+    # for i in tqdm(range(1,1+1)):
         y_train, delta_train, X_train_nn, z_train_mu, z_train_sigma, z_train_p, \
-        y_test, delta_test, X_test_nn, z_test_mu, z_test_sigma, z_test_p = load_cv_train_test(i)
+        y_test, delta_test, X_test_nn, z_test_mu, z_test_sigma, z_test_p = load_cv_train_test(i, structure)
 
         if(structure == 1):
             # Keep all intercepts as the model is fully linear
@@ -83,7 +132,7 @@ def fit_kfolds_structure(structure, distribution):
             data_test = [z_test_mu, z_test_sigma, z_test_p, y_test, delta_test]
 
             with tf.device("/CPU:0"):
-                model_parameters, model_loss, model_survival_cure = cure_aft.build_cure_aft_structure1(distribution, z_train_mu, z_train_sigma, z_train_p)
+                model_parameters, model_loss, model_survival_cure = cure_aft.build_cure_aft_structure1(dist, z_train_mu, z_train_sigma, z_train_p)
                 model = cure_aft.train_model( model_parameters, model_loss, None, None, None, None, data_train, verbose = False )
         elif(structure == 2):
             # Remove the intercept column for the mu parameter
@@ -91,7 +140,7 @@ def fit_kfolds_structure(structure, distribution):
             data_test = [z_test_mu.iloc[:,1:], z_test_sigma, z_test_p, y_test, delta_test]
 
             with tf.device("/CPU:0"):
-                model_parameters, model_loss, model_survival_cure = cure_aft.build_cure_aft_structure2(distribution, z_train_mu.iloc[:,1:], z_train_sigma, z_train_p)
+                model_parameters, model_loss, model_survival_cure = cure_aft.build_cure_aft_structure2(dist, z_train_mu.iloc[:,1:], z_train_sigma, z_train_p)
                 model = cure_aft.train_model( model_parameters, model_loss, cure_aft.neural_network1, cure_aft.network_call, cure_aft.network_call_nolast, X_train_nn, data_train, verbose = False )
         elif(structure == 3):
             # Remove the intercept column for the p parameter
@@ -99,7 +148,7 @@ def fit_kfolds_structure(structure, distribution):
             data_test = [z_test_mu, z_test_sigma, z_test_p.iloc[:,1:], y_test, delta_test]
 
             with tf.device("/CPU:0"):
-                model_parameters, model_loss, model_survival_cure = cure_aft.build_cure_aft_structure3(distribution, z_train_mu, z_train_sigma, z_train_p.iloc[:,1:])
+                model_parameters, model_loss, model_survival_cure = cure_aft.build_cure_aft_structure3(dist, z_train_mu, z_train_sigma, z_train_p.iloc[:,1:])
                 model = cure_aft.train_model( model_parameters, model_loss, cure_aft.neural_network1, cure_aft.network_call, cure_aft.network_call_nolast, X_train_nn, data_train, verbose = False )
         elif(structure == 4):
             # Remove the intercept column for the mu and p parameters
@@ -107,17 +156,33 @@ def fit_kfolds_structure(structure, distribution):
             data_test = [z_test_mu.iloc[:,1:], z_test_sigma, z_test_p.iloc[:,1:], y_test, delta_test]
 
             with tf.device("/CPU:0"):
-                model_parameters, model_loss, model_survival_cure = cure_aft.build_cure_aft_structure4(distribution, z_train_mu.iloc[:,1:], z_train_sigma, z_train_p.iloc[:,1:])
+                model_parameters, model_loss, model_survival_cure = cure_aft.build_cure_aft_structure4(dist, z_train_mu.iloc[:,1:], z_train_sigma, z_train_p.iloc[:,1:])
                 model = cure_aft.train_model( model_parameters, model_loss, cure_aft.neural_network2, cure_aft.network_call, cure_aft.network_call_nolast, X_train_nn, data_train, verbose = False )
-        else:
-            raise("Please, provide a valid model structure (1, 2, 3 or 4)")
+        elif(structure == 5):
+            data_train = [z_train_sigma, y_train, delta_train]
+            data_test = [z_test_sigma, y_test, delta_test]
 
-        model.save_model("../model_weights/Cross Validation/{}_model{}_fold_{}".format(distribution, structure, i))
+            with tf.device("/CPU:0"):
+                model_parameters, model_loss, model_survival_cure = cure_aft.build_cure_aft_structure5(dist, z_train_sigma)
+                model = cure_aft.train_model( model_parameters, model_loss, cure_aft.neural_network2, cure_aft.network_call, cure_aft.network_call_nolast, X_train_nn, data_train, verbose = False )
+        elif(structure == 6):
+            # Keep all intercepts as the model is fully linear
+            data_train = [z_train_mu, z_train_sigma, z_train_p, y_train, delta_train]
+            data_test = [z_test_mu, z_test_sigma, z_test_p, y_test, delta_test]
+
+            with tf.device("/CPU:0"):
+                model_parameters, model_loss, model_survival_cure = cure_aft.build_cure_aft_structure6(dist, z_train_mu, z_train_sigma, z_train_p)
+                model = cure_aft.train_model( model_parameters, model_loss, None, None, None, None, data_train, verbose = False )
+        else:
+            raise("Please, provide a valid model structure (1, 2, 3, 4, 5 or 6)")
+
+        model.save_model("../model_weights/Cross Validation/{}_model{}_fold_{}".format(dist, structure, i))
 
 if(__name__ == "__main__"):
     distributions = ["wb", "ln", "ll"]
-    for i in range(1, 4+1):
+    structures = [1,5,6]
+    for structure in structures:
         for dist in distributions:
-            print("Fitting 5 folds for Structure {} - Distribution {}".format(i, dist))
-            fit_kfolds_structure(i, dist)
+            print("Fitting 5 folds for Structure {} - Distribution {}".format(structure, dist))
+            fit_kfolds_structure(structure, dist)
 
