@@ -180,7 +180,7 @@ def fit_kfolds_structure(structure, dist):
 
 if(__name__ == "__main__"):
     distributions = ["wb", "ln", "ll"]
-    structures = [1,5,6]
+    structures = [1,2,3,4,5,6]
     for structure in structures:
         for dist in distributions:
             print("Fitting 5 folds for Structure {} - Distribution {}".format(structure, dist))
