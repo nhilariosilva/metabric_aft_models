@@ -408,7 +408,7 @@ def compute_randomized_residuals_censoring(survival_y, delta, seed = 42):
     u = np.clip(u, 1e-7, 1.0 - 1e-7)
     return norm.ppf(u)
 
-def plot_cox_snell(cs_residuals, delta, ax = None, title = "Cox-Snell Plot", label_fit = None):
+def plot_cox_snell(cs_residuals, delta, ax = None, title = "Cox-Snell Plot", label_fit = None, identity = True):
     if(ax is None):
         fig, ax = plt.subplots(nrows = 1, ncols = 1, figsize = (8,6))
     
@@ -419,8 +419,9 @@ def plot_cox_snell(cs_residuals, delta, ax = None, title = "Cox-Snell Plot", lab
         ax.plot(naf.cumulative_hazard_.index, naf.cumulative_hazard_.values, drawstyle='steps-post', label = label_fit)
     else:
         ax.plot(naf.cumulative_hazard_.index, naf.cumulative_hazard_.values, drawstyle='steps-post')
-    
-    ax.plot([0, cs_residuals.max()], [0, cs_residuals.max()], 'r--')
+
+    if(identity):
+        ax.plot([0, cs_residuals.max()], [0, cs_residuals.max()], 'r--')
     
     ax.set_title(title)
     ax.set_xlabel('Cox-Snell Residuals')
