@@ -14,5 +14,11 @@ env/
 build/
 dist/
 
-# Local experiment runs (committed baseline lives under artifacts/models/complete_version_baseline/)
 *.tar.gz
+.claude
+.agents
+
+my-reports
+docs
+results
+

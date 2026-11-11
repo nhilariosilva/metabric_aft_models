@@ -188,18 +188,18 @@ def build_cure_aft_structure0(aft_distribution, z_mu):
             "y_test": y_test,
             "delta_train": delta_train,
             "delta_test": delta_test,
-            "mu_train": mu_train.numpy().flatten(),
-            "mu_test": mu_test.numpy().flatten(),
-            "sigma_train": sigma_train.numpy().flatten(),
-            "sigma_test": sigma_test.numpy().flatten(),
-            "p_train": p_train.numpy().flatten(),
-            "p_test": p_test.numpy().flatten(),
-            "S_ts_train": S_ts_train.numpy(),
-            "S_ts_test": S_ts_test.numpy(),
-            "S_train": S_train.numpy().flatten(),
-            "S_test": S_test.numpy().flatten(),
-            "H_train": H_train.numpy().flatten(),
-            "H_test": H_test.numpy().flatten()
+            "mu_train": np.asarray(mu_train).flatten(),
+            "mu_test": np.asarray(mu_test).flatten(),
+            "sigma_train": np.asarray(sigma_train).flatten(),
+            "sigma_test": np.asarray(sigma_test).flatten(),
+            "p_train": np.asarray(p_train).flatten(),
+            "p_test": np.asarray(p_test).flatten(),
+            "S_ts_train": np.asarray(S_ts_train),
+            "S_ts_test": np.asarray(S_ts_test),
+            "S_train": np.asarray(S_train).flatten(),
+            "S_test": np.asarray(S_test).flatten(),
+            "H_train": np.asarray(H_train).flatten(),
+            "H_test": np.asarray(H_test).flatten()
         }
 
     return aft_model_parameters, loglikelihood_loss, get_survival_cure
@@ -1143,7 +1143,7 @@ def build_cure_aft_structure5(aft_distribution, z_sigma):
     return aft_model_parameters, loglikelihood_loss, get_survival_cure
 
 # mu: linear_genes ; sigma: linear ; p: linear_genes
-def build_cure_aft_structure6(aft_distribution, z_mu, z_sigma, z_p):
+def build_cure_aft_structure6(aft_distribution, z_mu, z_sigma, z_p, l2_reg = 0.01):
 
     def logit(u):
         return -( tf.math.log(1-u) - tf.math.log(u) )
@@ -1192,8 +1192,6 @@ def build_cure_aft_structure6(aft_distribution, z_mu, z_sigma, z_p):
     def loglikelihood_loss(model, nn_output, data):
         X, z_mu_data, z_sigma_data, z_p_data, y, delta = data
 
-        l2_reg = 0.01
-        
         k = None
         if(aft_distribution == "gg"):
             k = model.get_variable("k")
@@ -1494,7 +1492,7 @@ def network_call_nolast_fulldata(model, x_input, training=False):
     
     return x
 
-def train_model( model_parameters, model_loss, nn_arch, nn_call, nn_call_nolast, X_train_nn, data_train, epochs = 15000, verbose = True ):
+def train_model( model_parameters, model_loss, nn_arch, nn_call, nn_call_nolast, X_train_nn, data_train, epochs = 15000, verbose = True, finetune_min_delta = 1.0e-2 ):
     with tf.device("/CPU:0"):
         if(X_train_nn is not None):
             model = thf.ModelNN(model_parameters, model_loss,
@@ -1525,7 +1523,7 @@ def train_model( model_parameters, model_loss, nn_arch, nn_call, nn_call_nolast,
                               reduce_lr_cooldown = 10, reduce_lr_min_lr = 1.0e-5,
                               fine_tune = True,
                               finetune_early_stopping = True, finetune_early_stopping_patience = 50,
-                              finetune_early_stopping_warmup = 10, finetune_early_stopping_min_delta = 1.0e-2,
+                              finetune_early_stopping_warmup = 10, finetune_early_stopping_min_delta = finetune_min_delta,
                               finetune_reduce_lr = True, finetune_reduce_lr_warmup = 0,
                               finetune_reduce_lr_factor = 0.5, finetune_reduce_lr_min_delta = 1.0e-6, finetune_reduce_lr_patience = 25,
                               finetune_reduce_lr_cooldown = 10, finetune_reduce_lr_min_lr = 1.0e-5,
@@ -1549,7 +1547,7 @@ def train_model( model_parameters, model_loss, nn_arch, nn_call, nn_call_nolast,
                               reduce_lr_cooldown = 10, reduce_lr_min_lr = 1.0e-5,
                               fine_tune = True,
                               finetune_early_stopping = True, finetune_early_stopping_patience = 50,
-                              finetune_early_stopping_warmup = 10, finetune_early_stopping_min_delta = 1.0e-2,
+                              finetune_early_stopping_warmup = 10, finetune_early_stopping_min_delta = finetune_min_delta,
                               finetune_reduce_lr = True, finetune_reduce_lr_warmup = 0,
                               finetune_reduce_lr_factor = 0.5, finetune_reduce_lr_min_delta = 1.0e-6, finetune_reduce_lr_patience = 25,
                               finetune_reduce_lr_cooldown = 10, finetune_reduce_lr_min_lr = 1.0e-5,
