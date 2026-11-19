@@ -1334,7 +1334,7 @@ def neural_network1(model, seed = None):
     # Transforma contagens (0, 1, 2, 3) em embeddings de 2 dimensões
     model.embedding = keras.layers.Embedding(
         input_dim = 4,
-        output_dim = 2, 
+        output_dim = 2,
         name = "embedding_compartilhado"
     )
     
@@ -1492,7 +1492,20 @@ def network_call_nolast_fulldata(model, x_input, training=False):
     
     return x
 
-def train_model( model_parameters, model_loss, nn_arch, nn_call, nn_call_nolast, X_train_nn, data_train, epochs = 15000, verbose = True, finetune_min_delta = 1.0e-2 ):
+def train_model( model_parameters, model_loss, nn_arch, nn_call, nn_call_nolast, X_train_nn, data_train, epochs = 15000, verbose = True,
+                 fine_tune_nn_lr = 0.01, fine_tune_independent_lr = 0.01,
+                 early_stopping = True, early_stopping_patience = 50,
+                 early_stopping_warmup = 10, early_stopping_min_delta = 1.0e-6,
+                 reduce_lr = True, reduce_lr_warmup = 0,
+                 reduce_lr_factor = 0.5, reduce_lr_min_delta = 1.0e-3, reduce_lr_patience = 25,
+                 reduce_lr_cooldown = 10, reduce_lr_min_lr = 1.0e-5,
+                 fine_tune = True,
+                 finetune_early_stopping = True, finetune_early_stopping_patience = 50,
+                 finetune_early_stopping_warmup = 10, finetune_early_stopping_min_delta = 1.0e-2,
+                 finetune_reduce_lr = True, finetune_reduce_lr_warmup = 0,
+                 finetune_reduce_lr_factor = 0.5, finetune_reduce_lr_min_delta = 1.0e-6, finetune_reduce_lr_patience = 25,
+                 finetune_reduce_lr_cooldown = 10, finetune_reduce_lr_min_lr = 1.0e-5
+               ):
     with tf.device("/CPU:0"):
         if(X_train_nn is not None):
             model = thf.ModelNN(model_parameters, model_loss,
@@ -1515,18 +1528,18 @@ def train_model( model_parameters, model_loss, nn_arch, nn_call, nn_call_nolast,
                               validation = True, val_prop = 0.2, force_training_validation = False,
                               optimizer_independent = independent_optimizer,
                               optimizer_nn = nn_optimizer,
-                              fine_tune_nn_lr = 0.01, fine_tune_independent_lr = 0.01,
-                              early_stopping = True, early_stopping_patience = 50, 
-                              early_stopping_warmup = 10, early_stopping_min_delta = 1.0e-6,
-                              reduce_lr = True, reduce_lr_warmup = 0,
-                              reduce_lr_factor = 0.5, reduce_lr_min_delta = 1.0e-3, reduce_lr_patience = 25,
-                              reduce_lr_cooldown = 10, reduce_lr_min_lr = 1.0e-5,
-                              fine_tune = True,
-                              finetune_early_stopping = True, finetune_early_stopping_patience = 50,
-                              finetune_early_stopping_warmup = 10, finetune_early_stopping_min_delta = finetune_min_delta,
-                              finetune_reduce_lr = True, finetune_reduce_lr_warmup = 0,
-                              finetune_reduce_lr_factor = 0.5, finetune_reduce_lr_min_delta = 1.0e-6, finetune_reduce_lr_patience = 25,
-                              finetune_reduce_lr_cooldown = 10, finetune_reduce_lr_min_lr = 1.0e-5,
+                              fine_tune_nn_lr = fine_tune_nn_lr, fine_tune_independent_lr = fine_tune_independent_lr,
+                              early_stopping = early_stopping, early_stopping_patience = early_stopping_patience, 
+                              early_stopping_warmup = early_stopping_warmup, early_stopping_min_delta = early_stopping_min_delta,
+                              reduce_lr = reduce_lr, reduce_lr_warmup = reduce_lr_warmup,
+                              reduce_lr_factor = reduce_lr_factor, reduce_lr_min_delta = reduce_lr_min_delta, reduce_lr_patience = reduce_lr_patience,
+                              reduce_lr_cooldown = reduce_lr_cooldown, reduce_lr_min_lr = reduce_lr_min_lr,
+                              fine_tune = fine_tune,
+                              finetune_early_stopping = finetune_early_stopping, finetune_early_stopping_patience = finetune_early_stopping_patience,
+                              finetune_early_stopping_warmup = finetune_early_stopping_warmup, finetune_early_stopping_min_delta = finetune_early_stopping_min_delta,
+                              finetune_reduce_lr = finetune_reduce_lr, finetune_reduce_lr_warmup = finetune_reduce_lr_warmup,
+                              finetune_reduce_lr_factor = finetune_reduce_lr_factor, finetune_reduce_lr_min_delta = finetune_reduce_lr_min_delta, finetune_reduce_lr_patience = finetune_reduce_lr_patience,
+                              finetune_reduce_lr_cooldown = finetune_reduce_lr_cooldown, finetune_reduce_lr_min_lr = finetune_reduce_lr_min_lr,
                               deterministic = True,
                               verbose = verbose, print_freq = 1)
         else:
@@ -1539,18 +1552,18 @@ def train_model( model_parameters, model_loss, nn_arch, nn_call, nn_call_nolast,
                               validation = False, val_prop = 0.2, force_training_validation = True,
                               optimizer_independent = independent_optimizer,
                               optimizer_nn = nn_optimizer,
-                              fine_tune_nn_lr = 0.01, fine_tune_independent_lr = 0.05,
-                              early_stopping = True, early_stopping_patience = 50, 
-                              early_stopping_warmup = 10, early_stopping_min_delta = 1.0e-6,
-                              reduce_lr = True, reduce_lr_warmup = 0,
-                              reduce_lr_factor = 0.5, reduce_lr_min_delta = 1.0e-3, reduce_lr_patience = 25,
-                              reduce_lr_cooldown = 10, reduce_lr_min_lr = 1.0e-5,
-                              fine_tune = True,
-                              finetune_early_stopping = True, finetune_early_stopping_patience = 50,
-                              finetune_early_stopping_warmup = 10, finetune_early_stopping_min_delta = finetune_min_delta,
-                              finetune_reduce_lr = True, finetune_reduce_lr_warmup = 0,
-                              finetune_reduce_lr_factor = 0.5, finetune_reduce_lr_min_delta = 1.0e-6, finetune_reduce_lr_patience = 25,
-                              finetune_reduce_lr_cooldown = 10, finetune_reduce_lr_min_lr = 1.0e-5,
+                              fine_tune_nn_lr = fine_tune_nn_lr, fine_tune_independent_lr = fine_tune_independent_lr,
+                              early_stopping = early_stopping, early_stopping_patience = early_stopping_patience, 
+                              early_stopping_warmup = early_stopping_warmup, early_stopping_min_delta = early_stopping_min_delta,
+                              reduce_lr = reduce_lr, reduce_lr_warmup = reduce_lr_warmup,
+                              reduce_lr_factor = reduce_lr_factor, reduce_lr_min_delta = reduce_lr_min_delta, reduce_lr_patience = reduce_lr_patience,
+                              reduce_lr_cooldown = reduce_lr_cooldown, reduce_lr_min_lr = reduce_lr_min_lr,
+                              fine_tune = fine_tune,
+                              finetune_early_stopping = finetune_early_stopping, finetune_early_stopping_patience = finetune_early_stopping_patience,
+                              finetune_early_stopping_warmup = finetune_early_stopping_warmup, finetune_early_stopping_min_delta = finetune_early_stopping_min_delta,
+                              finetune_reduce_lr = finetune_reduce_lr, finetune_reduce_lr_warmup = finetune_reduce_lr_warmup,
+                              finetune_reduce_lr_factor = finetune_reduce_lr_factor, finetune_reduce_lr_min_delta = finetune_reduce_lr_min_delta, finetune_reduce_lr_patience = finetune_reduce_lr_patience,
+                              finetune_reduce_lr_cooldown = finetune_reduce_lr_cooldown, finetune_reduce_lr_min_lr = finetune_reduce_lr_min_lr,
                               deterministic = True,
                               verbose = verbose, print_freq = 1)
     return model
